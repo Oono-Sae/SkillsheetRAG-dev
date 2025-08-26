@@ -24,6 +24,16 @@
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
+        .sort-button {
+            transition: all 0.2s ease;
+        }
+        .sort-button.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .sort-button:hover:not(.active) {
+            background-color: #e5e7eb;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -72,6 +82,18 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-green-100 text-green-600">
+                            <i class="fas fa-file-alt text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-semibold text-gray-800">Total Files</h3>
+                            <p id="totalFiles" class="text-gray-600">Checking...</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -102,17 +124,12 @@
                         <p id="uploadStatus" class="text-sm text-gray-600 mt-2">アップロード中...</p>
                     </div>
                     
-                                            <button id="uploadBtn" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors" aria-label="選択したファイルをアップロード">
-                            <i class="fas fa-upload mr-2"></i>アップロード
-                        </button>
+                    <button id="uploadBtn" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors" aria-label="選択したファイルをアップロード">
+                        <i class="fas fa-upload mr-2"></i>アップロード
+                    </button>
                 </div>
 
-
-            </div>
-
-            <!-- 右側: 検索とファイル管理 -->
-            <div class="space-y-6">
-                                <!-- 統合検索・GPT回答生成 -->
+                <!-- 統合検索・GPT回答生成 -->
                 <div class="bg-white rounded-lg shadow-md p-6 card-hover">
                     <h2 class="text-xl font-bold text-gray-800 mb-4">
                         <i class="fas fa-robot mr-2 text-purple-600"></i>
@@ -128,7 +145,7 @@
                             <input type="text" id="unifiedQuery" placeholder="スキルや経験について検索・質問してください（RAG検索とGPT-4.5回答を自動生成）..." 
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                aria-describedby="unifiedQueryHelp">
-                        <div id="unifiedQueryHelp" class="sr-only">検索クエリまたは質問を入力するためのフィールド。RAG検索とGPT-4.5回答が自動的に生成されます。</div>
+                            <div id="unifiedQueryHelp" class="sr-only">検索クエリまたは質問を入力するためのフィールド。RAG検索とGPT-4.5回答が自動的に生成されます。</div>
                         </div>
                         
                         <div class="flex items-center space-x-4">
@@ -143,13 +160,11 @@
                             <button id="unifiedSearchBtn" 
                                 class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors mt-6" 
                                 aria-label="RAG検索とGPT-4.5回答を一度に実行">
-                            <i class="fas fa-search mr-2"></i>
-                            統合検索・GPT-4.5回答生成
-                        </button>
-            </div>
+                                <i class="fas fa-search mr-2"></i>
+                                統合検索・GPT-4.5回答生成
+                            </button>
+                        </div>
                     </div>
-                    
-
                     
                     <!-- GPT回答セクション -->
                     <div id="unifiedGptAnswerContainer" class="hidden mt-6">
@@ -172,7 +187,10 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
+            <!-- 右側: ファイル管理 -->
+            <div class="space-y-6">
                 <!-- ファイル管理 -->
                 <div class="bg-white rounded-lg shadow-md p-6 card-hover">
                     <h2 class="text-xl font-bold text-gray-800 mb-4">
@@ -181,22 +199,65 @@
                     </h2>
                     
                     <div class="space-y-4">
-                        <button id="refreshFilesBtn" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors" aria-label="アップロード済みファイルの一覧を更新">
-                            <i class="fas fa-sync-alt mr-2"></i>ファイル一覧更新
-                        </button>
+                        <div class="flex items-center justify-between">
+                            <button id="refreshFilesBtn" class="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors" aria-label="アップロード済みファイルの一覧を更新">
+                                <i class="fas fa-sync-alt mr-2"></i>ファイル一覧更新
+                            </button>
+                            
+                            <!-- ソート機能 -->
+                            <div class="flex space-x-2">
+                                <span class="text-sm text-gray-600 self-center mr-2">ソート:</span>
+                                <button id="sortByName" class="sort-button px-3 py-1 rounded text-sm border border-gray-300 hover:bg-gray-100" data-sort="name" data-order="asc">
+                                    <i class="fas fa-sort-alpha-down mr-1"></i>名前
+                                </button>
+                                <button id="sortByDate" class="sort-button px-3 py-1 rounded text-sm border border-gray-300 hover:bg-gray-100" data-sort="date" data-order="desc">
+                                    <i class="fas fa-sort-numeric-down mr-1"></i>日付
+                                </button>
+                                <button id="sortBySize" class="sort-button px-3 py-1 rounded text-sm border border-gray-300 hover:bg-gray-100" data-sort="size" data-order="desc">
+                                    <i class="fas fa-sort-amount-down mr-1"></i>サイズ
+                                </button>
+                            </div>
+                        </div>
                         
-                        <div id="filesList" class="space-y-2 max-h-40 overflow-y-auto">
+                        <div id="filesList" class="space-y-2 max-h-96 overflow-y-auto border border-gray-200 rounded-lg p-3">
                             <p class="text-gray-500 text-center py-4">ファイルがありません</p>
-        </div>
+                        </div>
 
                         <button id="clearRagBtn" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors" aria-label="RAGコレクションの全データを削除">
                             <i class="fas fa-trash mr-2"></i>RAGコレクションクリア
                         </button>
                     </div>
                 </div>
-            </div>
+
+                <!-- システム情報 -->
+                <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-info-circle mr-2 text-indigo-600"></i>
+                        システム情報
+                    </h2>
+                    
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">バージョン:</span>
+                            <span class="font-medium">1.0.0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">環境:</span>
+                            <span class="font-medium">Development</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">モデル:</span>
+                            <span class="font-medium">GPT-4o-mini</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">RAG:</span>
+                            <span class="font-medium">ChromaDB + Sentence Transformers</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
 
     <!-- 通知トースト -->
     <div id="toast" class="fixed top-4 right-4 bg-white border-l-4 border-green-500 shadow-lg rounded-lg p-4 transform translate-x-full transition-transform duration-300 z-50">
@@ -211,6 +272,10 @@
 
     <script>
         const API_BASE = 'http://localhost:8000';
+        
+        // グローバル変数
+        let currentFiles = [];
+        let currentSort = { field: 'date', order: 'desc' };
         
         // ユーティリティ関数
         function showToast(message, description = '', type = 'success') {
@@ -302,23 +367,23 @@
                 return;
             }
                     
-                    const formData = new FormData();
-                    formData.append('file', file);
-                    
-                    try {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
                 document.getElementById('uploadProgress').classList.remove('hidden');
                 document.getElementById('uploadBtn').disabled = true;
                 
                 const response = await fetch(`${API_BASE}/upload`, {
-                            method: 'POST',
-                            body: formData
-                        });
+                    method: 'POST',
+                    body: formData
+                });
                         
                 if (!response.ok) {
                     throw new Error(`Upload failed: ${response.status}`);
                 }
                 
-                            const result = await response.json();
+                const result = await response.json();
                 showToast('成功', 'ファイルがアップロードされました');
                 
                 // 状態を更新
@@ -334,14 +399,8 @@
             }
         }
         
-
-        
         // 統合検索・GPT回答生成
         let currentSearchResults = null;
-        
-
-        
-
         
         // 統合検索・GPT回答生成
         async function unifiedSearchAndAnswer() {
@@ -505,7 +564,9 @@
         async function refreshFiles() {
             try {
                 const response = await apiCall('/files');
+                currentFiles = response;
                 displayFiles(response);
+                updateTotalFiles(response.length);
             } catch (error) {
                 showToast('エラー', 'ファイル一覧取得に失敗しました', 'error');
             }
@@ -520,18 +581,130 @@
                 return;
             }
             
-            container.innerHTML = files.map(file => `
-                <div class="flex items-center justify-between p-2 bg-gray-50 rounded border">
+            // ソートを適用
+            const sortedFiles = sortFiles(files, currentSort.field, currentSort.order);
+            
+            container.innerHTML = sortedFiles.map(file => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded border hover:bg-gray-100 transition-colors">
                     <div class="flex-1">
                         <p class="font-medium text-gray-800">${file.filename}</p>
-                        <p class="text-sm text-gray-500">${file.file_size ? (file.file_size / 1024).toFixed(1) + ' KB' : 'Unknown'} • ${file.upload_date ? new Date(file.upload_date).toLocaleDateString() : 'Unknown'}</p>
+                        <div class="flex items-center space-x-4 text-sm text-gray-500 mt-1">
+                            <span><i class="fas fa-calendar mr-1"></i>${formatDate(file.upload_date)}</span>
+                            <span><i class="fas fa-weight-hanging mr-1"></i>${formatFileSize(file.file_size)}</span>
+                            <span><i class="fas fa-file mr-1"></i>${getFileExtension(file.filename)}</span>
                         </div>
-                    <button onclick="deleteFile('${file.filename}')" 
-                            class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition-colors">
-                            削除
-                        </button>
                     </div>
+                    <button onclick="deleteFile('${file.filename}')" 
+                            class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition-colors ml-3">
+                        <i class="fas fa-trash mr-1"></i>削除
+                    </button>
+                </div>
             `).join('');
+        }
+        
+        // ファイルソート
+        function sortFiles(files, field, order) {
+            const sortedFiles = [...files];
+            
+            sortedFiles.sort((a, b) => {
+                let aValue, bValue;
+                
+                switch (field) {
+                    case 'name':
+                        aValue = a.filename.toLowerCase();
+                        bValue = b.filename.toLowerCase();
+                        break;
+                    case 'date':
+                        aValue = new Date(a.upload_date || 0);
+                        bValue = new Date(b.upload_date || 0);
+                        break;
+                    case 'size':
+                        aValue = a.file_size || 0;
+                        bValue = b.file_size || 0;
+                        break;
+                    default:
+                        return 0;
+                }
+                
+                if (order === 'asc') {
+                    return aValue > bValue ? 1 : -1;
+                } else {
+                    return aValue < bValue ? 1 : -1;
+                }
+            });
+            
+            return sortedFiles;
+        }
+        
+        // ソートボタンの更新
+        function updateSortButtons(field, order) {
+            // すべてのソートボタンのアクティブ状態をリセット
+            document.querySelectorAll('.sort-button').forEach(btn => {
+                btn.classList.remove('active');
+                const icon = btn.querySelector('i');
+                if (btn.dataset.sort === field) {
+                    btn.classList.add('active');
+                    // アイコンを更新
+                    if (order === 'asc') {
+                        icon.className = 'fas fa-sort-alpha-down mr-1';
+                    } else {
+                        icon.className = 'fas fa-sort-alpha-up mr-1';
+                    }
+                }
+            });
+        }
+        
+        // ソート処理
+        function handleSort(field) {
+            const currentOrder = currentSort.field === field ? currentSort.order : 'desc';
+            const newOrder = currentOrder === 'asc' ? 'desc' : 'asc';
+            
+            currentSort = { field, order: newOrder };
+            updateSortButtons(field, newOrder);
+            displayFiles(currentFiles);
+        }
+        
+        // 日付フォーマット
+        function formatDate(dateString) {
+            if (!dateString) return 'Unknown';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ja-JP', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        // ファイルサイズフォーマット
+        function formatFileSize(bytes) {
+            if (!bytes) return 'Unknown';
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            let size = bytes;
+            let unitIndex = 0;
+            
+            while (size >= 1024 && unitIndex < sizes.length - 1) {
+                size /= 1024;
+                unitIndex++;
+            }
+            
+            return `${size.toFixed(1)} ${sizes[unitIndex]}`;
+        }
+        
+        // ファイル拡張子取得
+        function getFileExtension(filename) {
+            if (!filename) return 'Unknown';
+            return filename.split('.').pop().toUpperCase();
+        }
+        
+        // 総ファイル数更新
+        function updateTotalFiles(count) {
+            const totalFilesElement = document.getElementById('totalFiles');
+            if (totalFilesElement) {
+                totalFilesElement.textContent = `${count} files`;
+                totalFilesElement.className = 'text-green-600';
+            }
         }
         
         // ファイル削除
@@ -572,8 +745,6 @@
             }
         }
         
-
-        
         // イベントリスナー設定
         document.addEventListener('DOMContentLoaded', function() {
             // 初期化
@@ -582,10 +753,14 @@
             // ボタンイベント
             document.getElementById('healthCheck').addEventListener('click', checkHealth);
             document.getElementById('uploadBtn').addEventListener('click', uploadFile);
-
             document.getElementById('unifiedSearchBtn').addEventListener('click', unifiedSearchAndAnswer);
             document.getElementById('refreshFilesBtn').addEventListener('click', refreshFiles);
             document.getElementById('clearRagBtn').addEventListener('click', clearRagCollection);
+            
+            // ソートボタンイベント
+            document.getElementById('sortByName').addEventListener('click', () => handleSort('name'));
+            document.getElementById('sortByDate').addEventListener('click', () => handleSort('date'));
+            document.getElementById('sortBySize').addEventListener('click', () => handleSort('size'));
             
             // ファイル選択時の処理
             document.getElementById('fileInput').addEventListener('change', function() {
@@ -594,6 +769,9 @@
                     document.getElementById('uploadBtn').disabled = false;
                 }
             });
+            
+            // 初期ソート設定
+            updateSortButtons('date', 'desc');
         });
     </script>
 </body>
